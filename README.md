@@ -1,24 +1,27 @@
 # TopChoice
-$15 TopChoice
+TopChoice Campaign Strategy Game
 
 ## Preview
 
-Open `index.html` directly, or publish this repository with GitHub Pages by selecting the `main` branch and `/(root)` in the repository's Pages settings.
+Open `index.html` directly; it routes to the campaign game. Publish this repository with GitHub Pages by selecting the `main` branch and `/(root)` in the repository's Pages settings.
 
 See [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for the full feature design, data model, source standards, privacy rules, architecture, and release criteria.
 
 ## How to Play
 
-1. Start with the fictional A/B examples, or edit candidate names, issue claims, and source links.
-2. Open **政策組合** and choose policy cards for each side, staying within 15 game points per side. These points are attention tokens, not government budget.
-3. Open **情境推演** and select a shared public scenario to compare covered and unanswered issues.
-4. Open **三輪辯題** to review claims, implementation questions, and evidence. The prototype identifies differences and open questions; it does not declare a winner.
+1. Enter your fictional candidate name, choose a candidate style, and select a starting resource pack.
+2. Hire three campaign staff from five specialties.
+3. Choose three campaign policies from six options.
+4. Respond to four random campaign events. Each response spends or earns funds, volunteers, media reach, trust, and voter-group support.
+5. Compare weighted support against the AI opponent at election night. A simulated vote share over 50% is a win.
 
-## Candidate Data
+## Game Rules
 
-- Select **編輯比較資料** on the comparison page to edit a candidate profile and one issue claim at a time.
-- Claims, source names, source URLs, and publication dates are stored in the current browser's local storage. They are not synced to GitHub or another device.
-- Entered data is marked as unverified. Confirm each claim against its linked original source before sharing it as factual information.
-- Use **匯出 JSON 備份** to download a local copy, then **匯入 JSON 備份** in another browser to restore it. Import validates the file and asks before replacing local data. Use **重設示範資料** to clear local edits and restore the fictional examples.
+- Pick a fictional candidate style and one of three starting resource packs.
+- Hire exactly 3 campaign staff from 5 specialties.
+- Select exactly 3 policy cards from 6; each policy influences different fictional voter groups.
+- Play 4 distinct random events from the event deck. Choices spend or gain campaign funds, volunteers, media reach, trust, and voter support.
+- The weighted vote simulation includes a small random swing. More than 50% simulated vote share wins the fictional election.
+- Candidate names, district, rival, policies, voters, events, and election results are all fictional. No result predicts a real election.
 
-The built-in candidate and policy content is fictional demonstration data. This static prototype does not provide accounts, shared editing, or a backend database.
+This static prototype stores no candidate data or player profile and does not provide accounts, shared editing, or a backend database.

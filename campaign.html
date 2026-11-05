@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183b34">
+  <meta name="description" content="TopChoice 選戰策略遊戲：組團隊、定政策、應對事件，挑戰最後勝選。所有角色與事件皆為虛構。">
+  <title>TopChoice｜選戰策略</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="campaign.css">
+</head>
+<body>
+  <header class="game-header">
+    <a class="brand" href="campaign.html" aria-label="TopChoice 選戰首頁"><span class="brand-mark"><i></i><i></i><i></i><i></i></span><span><b>TOP<span>CHOICE</span></b><small>CAMPAIGN STRATEGY GAME</small></span></a>
+    <div class="header-center"><span class="sim-dot"></span>虛構選區模擬 <span class="header-divider">/</span> 單人戰役</div>
+    <button class="help-button" id="rulesButton" type="button"><span>?</span> 遊戲規則</button>
+  </header>
+
+  <div class="game-layout">
+    <aside class="campaign-rail">
+      <div class="race-card"><div class="race-overline">THE RACE / 01</div><div class="race-name">海灣市長選戰</div><div class="race-meta"><span>市長選舉</span><span>虛構選區</span></div></div>
+      <div class="rail-section-label">選戰進度</div>
+      <nav class="phase-nav" aria-label="選戰階段">
+        <div class="phase-step active" data-phase-nav="setup"><span class="phase-index">01</span><span><b>候選人設定</b><small>選擇出發條件</small></span><i></i></div>
+        <div class="phase-step" data-phase-nav="team"><span class="phase-index">02</span><span><b>組成團隊</b><small>聘用三位幕僚</small></span><i></i></div>
+        <div class="phase-step" data-phase-nav="platform"><span class="phase-index">03</span><span><b>制定政見</b><small>選定三項主打</small></span><i></i></div>
+        <div class="phase-step" data-phase-nav="campaign"><span class="phase-index">04</span><span><b>競選週期</b><small>應對四次事件</small></span><i></i></div>
+        <div class="phase-step" data-phase-nav="result"><span class="phase-index">05</span><span><b>開票夜</b><small>迎接勝選結算</small></span><i></i></div>
+      </nav>
+
+      <section class="resource-panel" aria-live="polite">
+        <div class="rail-section-label">競選資源 <span>YOUR CAMPAIGN</span></div>
+        <div id="resourceList"></div>
+      </section>
+
+      <section class="rival-panel">
+        <div class="rival-topline"><span class="rival-mark">AI</span><span>主要對手</span><span class="rival-status">備戰中</span></div>
+        <strong>對手候選人</strong>
+        <p>AI 將依其團隊與政見累積支持度，開票時正面競爭。</p>
+        <div class="rival-meter"><i></i></div>
+        <small>支持度情報將在競選過程逐步更新</small>
+      </section>
+
+      <div class="fiction-note"><span>ⓘ</span>角色、政見、選區、事件與選舉結果皆為虛構遊戲資料。</div>
+    </aside>
+
+    <main class="game-main">
+      <div class="main-topline"><div class="crumb"><span>海灣市長選戰</span><b>/</b><span id="currentStageLabel">候選人設定</span></div><div class="season-tag"><span>TURN</span><b id="turnIndicator">01 / 05</b></div></div>
+      <div class="stage-heading"><div><div class="stage-kicker" id="stageKicker">CAMPAIGN SETUP</div><h1 id="stageTitle">準備參選</h1><p id="stageDescription">決定你的候選人風格與起始競選資源，展開第一場選戰。</p></div><div class="stage-symbol" id="stageSymbol">01</div></div>
+      <section id="stageContent" class="stage-content" aria-live="polite"></section>
+      <footer class="stage-footer"><button class="back-button" id="backButton" type="button" hidden>← 上一步</button><span class="footer-hint" id="footerHint">所有設定都可以在開始競選前調整。</span><button class="continue-button" id="continueButton" type="button">進入競選團隊 <span>→</span></button></footer>
+      <div class="game-log" id="gameLog" hidden><span>最新戰報</span><p id="gameLogText"></p></div>
+    </main>
+  </div>
+
+  <dialog class="rules-dialog" id="rulesDialog">
+    <div class="dialog-head"><span class="stage-kicker">HOW THE CAMPAIGN WORKS</span><button class="dialog-close" id="closeRules" type="button" aria-label="關閉">×</button></div>
+    <h2>你的目標：贏下開票夜</h2>
+    <p>你是候選人本人。先選競選背景與資源包，再聘用三位幕僚、選三項主打政見；接著經歷四個隨機競選事件，每次都要選擇如何分配人力、經費與媒體能見度。</p>
+    <ol><li>候選人設定：選擇你的強項和起始資源。</li><li>競選團隊：從五種幕僚中聘用三位。</li><li>政策平台：選出三項主打政見，影響不同選民群體。</li><li>競選事件：每次事件選一種應對，留意資源是否足夠。</li><li>開票夜：比較加權選民支持度，得票過半即勝選。</li></ol>
+    <p class="rules-footnote">此為策略遊戲的虛構模擬；得票數不代表真實選舉預測。</p>
+    <button class="continue-button dialog-start" id="rulesDone" type="button">開始競選 <span>→</span></button>
+  </dialog>
+
+  <script src="campaign.js"></script>
+</body>
+</html>
