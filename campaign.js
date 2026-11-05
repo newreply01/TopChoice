@@ -72,10 +72,21 @@ const events = [
   ] }
 ];
 
+const rivalMoves = {
+  rain: { title: '改辦室內街坊說明會', desc: '對手把志工隊轉進社區據點，維持家庭與商家接觸。', cost: { volunteers: 1 }, effects: { support: { families: 3, business: 2 }, trust: 1 }, edge: 0.55 },
+  forum: { title: '引用公開資料應答', desc: '對手以成本與執行時程資料穩住政策信任。', cost: { funds: 1 }, effects: { support: { commuters: 2 }, trust: 2 }, edge: 0.25 },
+  transitBuzz: { title: '發布通勤快問快答', desc: '對手快速整理交通改善重點，搶下通勤議題聲量。', cost: { media: 1 }, effects: { support: { youth: 2, commuters: 3 }, media: -1 }, edge: 0.30 },
+  donation: { title: '舉辦公開募款餐會', desc: '對手增加選戰資金，同時公開募款與支出原則。', cost: {}, effects: { funds: 2, support: { business: 3 }, trust: 1 }, edge: 0.35 },
+  policyCost: { title: '公布成本估算摘要', desc: '對手提供初步財源假設，爭取家庭與商家信任。', cost: { funds: 1 }, effects: { support: { families: 1, business: 2 }, trust: 2 }, edge: 0.25 },
+  schedule: { title: '拆成兩組同步跑行程', desc: '對手讓候選人和地方團隊分別出席兩場活動。', cost: { volunteers: 1 }, effects: { support: { youth: 2, business: 2 }, media: 1 }, edge: 0.30 }
+};
+
 const state = {
   phase: 'setup', candidateName: '我的候選人', archetype: 'organizer', resourcePack: 'balanced',
   teamIds: [], policyIds: [], resources: null, support: Object.fromEntries(voterGroups.map(group => [group.id, 0])),
-  eventDeck: [], round: 0, log: [], result: null, lastOutcome: ''
+  rivalResources: null, rivalSupport: Object.fromEntries(voterGroups.map(group => [group.id, 0])),
+  eventDeck: [], round: 0, roundScore: { player: 0, rival: 0, ties: 0 }, roundHistory: [], lastRoundResult: null,
+  log: [], result: null, lastOutcome: ''
 };
 const $ = selector => document.querySelector(selector);
 const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -106,7 +117,14 @@ function renderPhaseNav() {
   $('#stageTitle').textContent = title;
   $('#stageDescription').textContent = description;
   $('#stageSymbol').textContent = symbol;
+  if (state.phase === 'campaign') {
+    $('#stageTitle').textContent = `第 ${state.round + 1} 輪｜候選人正面交鋒`;
+    $('#stageDescription').textContent = '先看 AI 對手本輪策略，再選擇你的應對；每輪都會更新系列比分。';
+  }
+  $('#turnLabel').textContent = state.phase === 'campaign' ? 'ROUND' : 'TURN';
   $('#turnIndicator').textContent = state.phase === 'campaign' ? `${String(state.round + 1).padStart(2, '0')} / 04` : `${String(activeIndex + 1).padStart(2, '0')} / 05`;
+  $('#matchScore').hidden = state.phase !== 'campaign';
+  $('#matchScore').textContent = `你 ${state.roundScore.player} : ${state.roundScore.rival} AI`;
   $('#backButton').hidden = !['team', 'platform'].includes(state.phase);
   $('#continueButton').hidden = state.phase === 'campaign';
   $('#continueButton').disabled = (state.phase === 'team' && state.teamIds.length !== 3) || (state.phase === 'platform' && state.policyIds.length !== 3);
@@ -142,6 +160,7 @@ function formatCosts(cost = {}) {
 
 function renderCampaign() {
   const event = state.eventDeck[state.round];
+  const rivalMove = rivalMoves[event.id];
   const choices = event.choices.map((choice, index) => {
     const canAfford = Object.entries(choice.cost || {}).every(([key, value]) => state.resources[key] >= value);
     const teamQualified = !choice.needs || selectedTeamHas(choice.needs);
@@ -151,8 +170,9 @@ function renderCampaign() {
     const bonusHint = choice.bonus ? `<div class="choice-metrics"><span>${bonusQualified ? `加成有效：${requirement}` : `未配置${requirement}，無額外加成`}</span></div>` : '';
     return `<button type="button" class="event-choice" data-event-choice="${index}" ${canAfford ? '' : 'disabled'}><strong><span>${choice.title}</span><span>0${index + 1}</span></strong><p>${choice.desc}</p><div class="event-costs">${formatCosts(choice.cost)}</div>${!canAfford ? '<div class="event-costs">資源不足</div>' : ''}${bonusHint}</button>`;
   }).join('');
-  const log = state.lastOutcome ? `<div class="event-result">${state.lastOutcome}</div>` : '';
-  $('#stageContent').innerHTML = `<article class="phase-card campaign-event"><div class="campaign-event-top"><span class="event-type">RANDOM EVENT / ${event.icon}</span><span class="event-round">第 ${state.round + 1} 回合 · 共 4 回合</span></div><h2>${event.title}</h2><p>${event.desc}</p><div class="event-choice-grid">${choices}</div>${log}</article><div class="support-preview">${voterGroups.map(group => `<div class="support-chip"><span>${group.name} 初步回應</span><b>${state.support[group.id] >= 0 ? '+' : ''}${state.support[group.id]}</b></div>`).join('')}</div>`;
+  const roundHistory = state.roundHistory.map(item => `<span class="round-result-chip ${item.winner}">R${item.round} ${item.winner === 'player' ? '你勝' : item.winner === 'rival' ? 'AI 勝' : '平手'}</span>`).join('');
+  const log = state.lastRoundResult ? `<div class="event-result"><b>${state.lastRoundResult.summary}</b><span>${state.lastOutcome}</span></div>` : '';
+  $('#stageContent').innerHTML = `<section class="series-board"><div class="series-player"><span>YOUR CAMPAIGN</span><strong>${escapeHTML(state.candidateName)}</strong><small>你</small></div><div class="series-center"><span>四輪交鋒</span><b>VS</b><strong>${state.roundScore.player} : ${state.roundScore.rival}</strong><small>目前比分</small></div><div class="series-player rival"><span>AI RIVAL</span><strong>對手候選人</strong><small>AI 對手</small></div></section><div class="round-history">${roundHistory || '<span class="round-result-chip pending">尚未完成回合</span>'}<span class="round-result-chip current">進行中 R${state.round + 1}</span></div><div class="duel-turns"><article class="turn-card rival-turn"><div class="turn-card-label"><span class="turn-avatar">AI</span><span>對手已出招</span><b>AI 回合</b></div><h3>${rivalMove.title}</h3><p>${rivalMove.desc}</p><div class="turn-effect">${formatCosts(rivalMove.cost)} · 影響 ${ (eventImpactScore(rivalMove.effects, rivalMove.cost) + rivalMove.edge).toFixed(1)}</div></article><article class="turn-card player-turn"><div class="turn-card-label"><span class="turn-avatar you">你</span><span>輪到你應對</span><b>你的回合</b></div><h3>${event.title}</h3><p>${event.desc}</p></article></div><article class="phase-card campaign-event"><div class="campaign-event-top"><span class="event-type">ROUND ${state.round + 1} / RANDOM EVENT ${event.icon}</span><span class="event-round">選擇你的戰術回應</span></div><div class="event-choice-grid">${choices}</div>${log}</article><div class="support-preview">${voterGroups.map(group => `<div class="support-chip"><span>${group.name} 支持變化</span><b>${state.support[group.id] >= 0 ? '+' : ''}${state.support[group.id]}</b></div>`).join('')}</div>`;
   document.querySelectorAll('[data-event-choice]').forEach(button => button.addEventListener('click', () => resolveEvent(Number(button.dataset.eventChoice))));
 }
 
@@ -165,7 +185,8 @@ function renderResult() {
     return `<div class="result-group"><div class="result-group-head"><span>${group.name}</span><b>你 ${Math.round(you)} · AI ${Math.round(rival)}</b></div><div class="duel-bars"><div class="duel-bar"><i style="width:${clamp(you, 0, 100)}%"></i></div><div class="duel-bar rival"><i style="width:${clamp(rival, 0, 100)}%"></i></div></div></div>`;
   }).join('');
   const selectedTitles = state.policyIds.map(id => policies.find(policy => policy.id === id).title).join('、');
-  $('#stageContent').innerHTML = `<section class="result-hero ${win ? 'win' : 'lose'}"><div class="vote-donut" style="--vote-angle:${result.playerShare * 3.6}deg"><div class="vote-center"><b>${result.playerShare.toFixed(1)}%</b><span>你的預估得票</span></div></div><div><span class="result-label">ELECTION NIGHT / FINAL COUNT</span><h2 class="result-headline">${win ? '恭喜，成功勝選！' : '這次未能勝選'}</h2><p class="result-summary">${win ? '團隊與政見獲得足夠支持，海灣市迎來新市長。' : '選戰落幕。回看資源與政策配置，找出下次能調整的地方。'}</p><div class="score-line"><span class="you">你 ${result.playerShare.toFixed(1)}%</span><span class="ai">AI 對手 ${result.rivalShare.toFixed(1)}%</span></div></div></section><div class="stage-section-title" style="margin-top:15px"><div><h2>選民群體支持</h2><p>你與 AI 對手在各群體的模擬支持指數。</p></div><span class="count-badge">主打：${escapeHTML(selectedTitles)}</span></div><div class="result-groups">${supportRows}</div><p class="result-disclaimer">此結果為虛構遊戲計算，包含隨機波動，不代表任何真實候選人、選區或選舉預測。</p>`;
+  const roundSummary = state.roundHistory.map(item => `<span class="round-result-chip ${item.winner}">R${item.round} ${item.winner === 'player' ? '你勝' : item.winner === 'rival' ? 'AI 勝' : '平手'}</span>`).join('');
+  $('#stageContent').innerHTML = `<section class="result-hero ${win ? 'win' : 'lose'}"><div class="vote-donut" style="--vote-angle:${result.playerShare * 3.6}deg"><div class="vote-center"><b>${result.playerShare.toFixed(1)}%</b><span>你的預估得票</span></div></div><div><span class="result-label">ELECTION NIGHT / FINAL COUNT</span><h2 class="result-headline">${win ? '恭喜，成功勝選！' : '這次未能勝選'}</h2><p class="result-summary">${win ? '團隊與政見獲得足夠支持，海灣市迎來新市長。' : '選戰落幕。回看四輪交鋒與資源配置，找出下次能調整的地方。'}</p><div class="score-line"><span class="you">你 ${result.playerShare.toFixed(1)}%</span><span class="ai">AI 對手 ${result.rivalShare.toFixed(1)}%</span></div></div></section><section class="series-final"><div><span>4-ROUND SERIES</span><b>你 ${state.roundScore.player} : ${state.roundScore.rival} AI</b><small>本輪得分不取代開票結果</small></div><div class="round-history">${roundSummary}</div></section><div class="stage-section-title" style="margin-top:15px"><div><h2>選民群體支持</h2><p>你與 AI 對手在各群體的模擬支持指數。</p></div><span class="count-badge">主打：${escapeHTML(selectedTitles)}</span></div><div class="result-groups">${supportRows}</div><p class="result-disclaimer">此結果為虛構遊戲計算，包含隨機波動，不代表任何真實候選人、選區或選舉預測。</p>`;
 }
 
 function render() {
@@ -206,6 +227,11 @@ function initializeCampaign() {
     [shuffledEvents[index], shuffledEvents[swapIndex]] = [shuffledEvents[swapIndex], shuffledEvents[index]];
   }
   state.eventDeck = shuffledEvents.slice(0, 4);
+  state.rivalResources = { funds: 7, volunteers: 6, media: 6, trust: 6 };
+  state.rivalSupport = Object.fromEntries(voterGroups.map(group => [group.id, 0]));
+  state.roundScore = { player: 0, rival: 0, ties: 0 };
+  state.roundHistory = [];
+  state.lastRoundResult = null;
   state.round = 0;
   state.lastOutcome = '';
   state.log = [`競選開始：${state.candidateName}選擇「${archetype.title}」，聘用 ${state.teamIds.length} 位幕僚，主打 ${state.policyIds.length} 項政見。`];
@@ -215,17 +241,36 @@ function initializeCampaign() {
 function resolveEvent(choiceIndex) {
   const event = state.eventDeck[state.round];
   const choice = event.choices[choiceIndex];
+  const rivalMove = rivalMoves[event.id];
   if (!choice || !Object.entries(choice.cost || {}).every(([key, value]) => state.resources[key] >= value)) return;
-  applyResourceDelta(state.resources, Object.fromEntries(Object.entries(choice.cost || {}).map(([key, value]) => [key, -value])));
-  applyResourceDelta(state.resources, Object.fromEntries(Object.entries(choice.effects || {}).filter(([key]) => key !== 'support')));
-  addSupport(state.support, choice.effects?.support);
+  const playerEffects = { ...choice.effects, support: { ...(choice.effects?.support || {}) } };
   const bonusQualified = (!choice.needs || selectedTeamHas(choice.needs)) && (!choice.policy || selectedPolicyHas(choice.policy));
   if (choice.bonus && bonusQualified) {
-    applyResourceDelta(state.resources, Object.fromEntries(Object.entries(choice.bonus).filter(([key]) => key !== 'support')));
-    addSupport(state.support, choice.bonus.support);
+    for (const [key, value] of Object.entries(choice.bonus)) {
+      if (key === 'support') addSupport(playerEffects.support, value);
+      else playerEffects[key] = (playerEffects[key] || 0) + value;
+    }
   }
+  applyResourceDelta(state.resources, Object.fromEntries(Object.entries(choice.cost || {}).map(([key, value]) => [key, -value])));
+  applyResourceDelta(state.resources, Object.fromEntries(Object.entries(playerEffects).filter(([key]) => key !== 'support')));
+  addSupport(state.support, playerEffects.support);
+  applyResourceDelta(state.rivalResources, Object.fromEntries(Object.entries(rivalMove.cost || {}).map(([key, value]) => [key, -value])));
+  applyResourceDelta(state.rivalResources, Object.fromEntries(Object.entries(rivalMove.effects).filter(([key]) => key !== 'support')));
+  addSupport(state.rivalSupport, rivalMove.effects.support);
+  const playerImpact = eventImpactScore(playerEffects, choice.cost);
+  const rivalImpact = eventImpactScore(rivalMove.effects, rivalMove.cost) + rivalMove.edge;
+  const difference = playerImpact - rivalImpact;
+  const winner = Math.abs(difference) < 0.12 ? 'tie' : difference > 0 ? 'player' : 'rival';
+  if (winner === 'player') state.roundScore.player += 1;
+  else if (winner === 'rival') state.roundScore.rival += 1;
+  else state.roundScore.ties += 1;
+  const roundResult = { round: state.round + 1, eventTitle: event.title, playerMove: choice.title, rivalMove: rivalMove.title, playerImpact, rivalImpact, winner };
+  state.roundHistory.push(roundResult);
+  const winnerLabel = winner === 'player' ? `${state.candidateName}拿下本輪` : winner === 'rival' ? 'AI 對手拿下本輪' : '本輪平手';
+  roundResult.summary = `第 ${roundResult.round} 輪：${winnerLabel}｜本輪影響 ${playerImpact.toFixed(1)} : ${rivalImpact.toFixed(1)}｜系列比分 ${state.roundScore.player} : ${state.roundScore.rival}`;
+  state.lastRoundResult = roundResult;
   state.lastOutcome = choice.result;
-  state.log.push(`回合 ${state.round + 1}：${event.title}｜${choice.title}。${choice.result}`);
+  state.log.push(`${roundResult.summary}。${event.title}：${choice.title}；AI：${rivalMove.title}。`);
   state.round += 1;
   if (state.round >= state.eventDeck.length) {
     state.result = calculateElection();
@@ -252,11 +297,20 @@ function weightedScore(scores) {
   return voterGroups.reduce((total, group) => total + scores[group.id] * group.weight, 0);
 }
 
+function eventImpactScore(effects, costs = {}) {
+  const groups = effects.support || {};
+  const voterImpact = voterGroups.reduce((total, group) => total + (groups[group.id] || 0) * group.weight, 0);
+  const resourceImpact = (effects.trust || 0) * 0.35 + (effects.media || 0) * 0.16 + (effects.funds || 0) * 0.10 + (effects.volunteers || 0) * 0.13;
+  const costPenalty = (costs.funds || 0) * 0.10 + (costs.media || 0) * 0.16 + (costs.volunteers || 0) * 0.13;
+  return voterImpact + resourceImpact - costPenalty;
+}
+
 function calculateElection() {
   const playerGroups = groupScores(43, state.policyIds, state.support, state.resources.trust, state.resources.media);
   const rivalPolicyIds = ['housing', 'transit', 'industry'];
   const rivalMods = { commuters: 2, business: 1 };
-  const rivalGroups = groupScores(48, rivalPolicyIds, rivalMods, 6, 6);
+  addSupport(rivalMods, state.rivalSupport);
+  const rivalGroups = groupScores(48, rivalPolicyIds, rivalMods, state.rivalResources.trust, state.rivalResources.media);
   const spread = weightedScore(playerGroups) - weightedScore(rivalGroups) + (Math.random() * 4 - 2);
   const playerShare = Number(clamp(50 + spread * 0.72, 28, 72).toFixed(1));
   return { playerGroups, rivalGroups, playerShare, rivalShare: Number((100 - playerShare).toFixed(1)) };
@@ -284,6 +338,10 @@ function nextPhase() {
 function resetGame() {
   state.phase = 'setup'; state.candidateName = '我的候選人'; state.archetype = 'organizer'; state.resourcePack = 'balanced';
   state.teamIds = []; state.policyIds = []; state.resources = null; state.round = 0; state.log = []; state.result = null; state.lastOutcome = '';
+  state.rivalResources = null;
+  state.rivalSupport = Object.fromEntries(voterGroups.map(group => [group.id, 0]));
+  state.roundScore = { player: 0, rival: 0, ties: 0 };
+  state.roundHistory = []; state.lastRoundResult = null;
   state.support = Object.fromEntries(voterGroups.map(group => [group.id, 0]));
   render();
 }

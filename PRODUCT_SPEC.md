@@ -13,8 +13,8 @@ The player is the candidate. A campaign lasts five stages:
 1. Candidate setup: enter a candidate name, choose one of three candidate styles, and choose one of three starting resource packs.
 2. Campaign team: hire exactly three of five staff specialties. Each member changes starting resources, voter support, or event bonuses.
 3. Policy platform: choose exactly three of six fictional policy cards. Policies influence different voter groups.
-4. Campaign trail: play four distinct random events from a six-event deck. Choose one response per event, respecting resource costs and any staff or policy synergy.
-5. Election night: compare weighted voter-group support against the AI opponent. A simulated share above 50% is a win; otherwise the opponent wins.
+4. Campaign trail: play four distinct rounds from a six-event deck. Each round shows the AI candidate's strategy first; the player chooses a response, then both moves affect support and resources. Compare their impact scores and record a player win, AI win, or tie in the series score.
+5. Election night: compare weighted voter-group support against the AI opponent. A simulated share above 50% wins the election. The four-round series score describes event performance but does not replace the election result.
 
 A completed game can be restarted with a new event order and a different candidate, team, resource pack, and policy combination.
 
@@ -46,6 +46,8 @@ Six policy themes: housing, transportation, education and care, climate resilien
 Each game draws four unique events from a six-card deck. Current event themes are weather disruption, candidate forum, transport issue attention, fundraising invitation, policy cost questions, and schedule conflict.
 
 Every event presents two responses, their resource costs, and any staff or platform synergy. The selected response changes resources, trust, and voter-group support. Event text must stay generic and fictional; it must not imply real-world misconduct or attribute unverified claims to real people.
+
+Each event also defines an AI campaign move and a small opponent strategy edge. Round impact is calculated from weighted voter-group changes, trust/media/resource changes, and resource costs. The AI and player use the same event-impact formula; the AI edge is explicit game difficulty, not hidden candidate strength. Round history records both moves, both impact scores, and the winner.
 
 ## Election Simulation
 

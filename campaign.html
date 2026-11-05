@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="campaign.css">
+  <link rel="stylesheet" href="duel.css">
 </head>
 <body>
   <header class="game-header">
@@ -47,7 +48,7 @@
     </aside>
 
     <main class="game-main">
-      <div class="main-topline"><div class="crumb"><span>海灣市長選戰</span><b>/</b><span id="currentStageLabel">候選人設定</span></div><div class="season-tag"><span>TURN</span><b id="turnIndicator">01 / 05</b></div></div>
+      <div class="main-topline"><div class="crumb"><span>海灣市長選戰</span><b>/</b><span id="currentStageLabel">候選人設定</span></div><div class="season-tag"><span id="turnLabel">TURN</span><b id="turnIndicator">01 / 05</b><span class="match-score" id="matchScore" hidden>你 0 : 0 AI</span></div></div>
       <div class="stage-heading"><div><div class="stage-kicker" id="stageKicker">CAMPAIGN SETUP</div><h1 id="stageTitle">準備參選</h1><p id="stageDescription">決定你的候選人風格與起始競選資源，展開第一場選戰。</p></div><div class="stage-symbol" id="stageSymbol">01</div></div>
       <section id="stageContent" class="stage-content" aria-live="polite"></section>
       <footer class="stage-footer"><button class="back-button" id="backButton" type="button" hidden>← 上一步</button><span class="footer-hint" id="footerHint">所有設定都可以在開始競選前調整。</span><button class="continue-button" id="continueButton" type="button">進入競選團隊 <span>→</span></button></footer>
@@ -59,7 +60,7 @@
     <div class="dialog-head"><span class="stage-kicker">HOW THE CAMPAIGN WORKS</span><button class="dialog-close" id="closeRules" type="button" aria-label="關閉">×</button></div>
     <h2>你的目標：贏下開票夜</h2>
     <p>你是候選人本人。先選競選背景與資源包，再聘用三位幕僚、選三項主打政見；接著經歷四個隨機競選事件，每次都要選擇如何分配人力、經費與媒體能見度。</p>
-    <ol><li>候選人設定：選擇你的強項和起始資源。</li><li>競選團隊：從五種幕僚中聘用三位。</li><li>政策平台：選出三項主打政見，影響不同選民群體。</li><li>競選事件：每次事件選一種應對，留意資源是否足夠。</li><li>開票夜：比較加權選民支持度，得票過半即勝選。</li></ol>
+    <ol><li>候選人設定：選擇你的強項和起始資源。</li><li>競選團隊：從五種幕僚中聘用三位。</li><li>政策平台：選出三項主打政見，影響不同選民群體。</li><li>四輪候選人 PK：每輪先看 AI 對手出招，再選你的應對；每輪結算勝負並累積系列比分。</li><li>開票夜：比較加權選民支持度，得票過半即勝選；系列比分會顯示整場交鋒表現。</li></ol>
     <p class="rules-footnote">此為策略遊戲的虛構模擬；得票數不代表真實選舉預測。</p>
     <button class="continue-button dialog-start" id="rulesDone" type="button">開始競選 <span>→</span></button>
   </dialog>
