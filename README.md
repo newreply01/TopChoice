@@ -5,6 +5,8 @@ $15 TopChoice
 
 Open `index.html` directly, or publish this repository with GitHub Pages by selecting the `main` branch and `/(root)` in the repository's Pages settings.
 
+See [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for the full feature design, data model, source standards, privacy rules, architecture, and release criteria.
+
 ## Candidate Data
 
 - Select **編輯比較資料** on the comparison page to edit a candidate profile and one issue claim at a time.
