@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="data-editor.css">
 </head>
 <body>
   <header class="topbar">
@@ -34,9 +35,9 @@
       <div class="sidebar-spacer"></div>
       <div class="source-note">
         <span class="source-symbol">◎</span>
-        <strong>示範資料集</strong>
-        <p>候選人與政策內容皆為虛構示例，不對應任何真實人物、政黨或選舉主張。</p>
-        <span class="source-status"><i></i> 尚未連接資料來源</span>
+        <strong id="sourceStatusTitle">示範資料集</strong>
+        <p id="sourceStatusText">候選人與政策內容皆為虛構示例，不對應任何真實人物、政黨或選舉主張。</p>
+        <span class="source-status" id="sourceStatus"><i></i> 尚未連接資料來源</span>
       </div>
       <div class="sidebar-foot"><span>TOPCHOICE LAB</span><span>v0.1 · PROTOTYPE</span></div>
     </aside>
@@ -44,7 +45,7 @@
     <main class="content">
       <div class="content-head">
         <div class="breadcrumb"><span>工作台</span><b>/</b><span id="currentCrumb">候選人比較</span></div>
-        <div class="head-status"><span class="demo-tag">DEMO DATA</span><span class="updated">介面原型 · 2026</span></div>
+        <div class="head-status"><span class="demo-tag" id="demoDataBadge">DEMO DATA</span><span class="updated">介面原型 · 2026</span></div>
       </div>
 
       <section class="view active" id="view-overview">
@@ -57,11 +58,11 @@
           <div class="intro-stamp"><span>DEMO</span><b>01<span>/</span>04</b><small>比較工作台</small></div>
         </div>
 
-        <div class="notice-bar"><span class="notice-icon">i</span><p><strong>虛構示範資料</strong>　以下候選人與政見僅展示操作方式。正式資料需附原始來源、發布日期及更新紀錄。</p><button class="text-action" id="sourceInfo">資料原則 ↗</button></div>
+        <div class="notice-bar"><span class="notice-icon">i</span><p id="policyNoticeText"><strong>虛構示範資料</strong>　以下候選人與政見僅展示操作方式。正式資料需附原始來源、發布日期及更新紀錄。</p><button class="text-action" id="sourceInfo">資料原則 ↗</button></div>
 
         <div class="comparison-heading">
           <div><span class="section-kicker">01 / THE CANDIDATES</span><h2>候選人政策比較</h2></div>
-          <button class="outline-button" data-goto="policy"><span>組合政策方案</span><b>→</b></button>
+          <div class="heading-actions"><button class="outline-button" id="editDataButton"><span>編輯比較資料</span><b>＋</b></button><button class="outline-button" data-goto="policy"><span>組合政策方案</span><b>→</b></button></div>
         </div>
 
         <div class="candidate-grid" id="candidateCards"></div>
@@ -110,6 +111,30 @@
       <footer class="page-footer"><span>TOPCHOICE · A CIVIC COMPARISON PROTOTYPE</span><span>內容以來源為本，差異由你檢視。</span></footer>
     </main>
   </div>
+  <dialog class="data-dialog" id="dataDialog">
+    <div class="dialog-head"><span class="section-kicker">LOCAL DATA EDITOR</span><button class="icon-button close-data-dialog" type="button" aria-label="關閉">×</button></div>
+    <h2>編輯比較資料</h2>
+    <p class="data-dialog-note">編輯內容只儲存在這個瀏覽器。請附上可公開查閱的原始來源；輸入內容不會自動視為已查證。</p>
+    <form id="policyDataForm">
+      <div class="editor-select-row">
+        <label>比較對象<select id="editorCandidate"><option value="A">候選人 A</option><option value="B">候選人 B</option></select></label>
+        <label>議題<select id="editorIssue"><option value="housing">居住政策</option><option value="transit">交通建設</option><option value="education">教育照顧</option><option value="energy">能源韌性</option><option value="industry">產業轉型</option><option value="fiscal">財政治理</option></select></label>
+      </div>
+      <div class="editor-section-label">候選人資料</div>
+      <label>顯示名稱<input id="editorName" maxlength="60" required></label>
+      <label>簡介<textarea id="editorApproach" rows="2" maxlength="240"></textarea></label>
+      <label>標籤，以逗號分隔<input id="editorTags" maxlength="100"></label>
+      <div class="editor-section-label">此議題的主張與來源</div>
+      <label>主張摘要<textarea id="editorClaim" rows="3" maxlength="500" required></textarea></label>
+      <div class="editor-source-grid">
+        <label>來源名稱<input id="editorSourceTitle" maxlength="100" placeholder="例如：候選人政見專頁"></label>
+        <label>發布日期<input id="editorSourceDate" type="date"></label>
+      </div>
+      <label>原始來源網址<input id="editorSourceUrl" type="url" maxlength="500" placeholder="https://" inputmode="url"></label>
+      <p class="editor-feedback" id="editorFeedback" aria-live="polite"></p>
+      <div class="editor-actions"><button class="solid-button" type="submit">儲存這筆資料 <span>✓</span></button><button class="small-button" id="exportDataButton" type="button">匯出 JSON 備份</button><button class="small-button reset-data-button" id="resetDataButton" type="button">重設示範資料</button></div>
+    </form>
+  </dialog>
   <dialog class="info-dialog" id="infoDialog"><div class="dialog-head"><span class="section-kicker">DATA STANDARD</span><button class="icon-button close-dialog" aria-label="關閉">×</button></div><h2>資料標示原則</h2><p>這個原型的候選人、政見與政策選項皆為虛構示例。正式版本應採相同欄位呈現所有對象，保留原始來源、發布日期、更新紀錄及更正管道。</p><ul><li>不以未揭露的權重計算候選人總分。</li><li>事實資料與情境假設分開標示。</li><li>可查看、調整或重設每項比較條件。</li><li>引用主張時連回原始文件，不改寫成定論。</li></ul><button class="solid-button close-dialog">知道了 <span>✓</span></button></dialog>
   <script src="app.js"></script>
 </body>
