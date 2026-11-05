@@ -97,6 +97,64 @@ function persistDataStore() {
   localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(dataStore));
 }
 
+function normalizeImportedData(payload) {
+  if (!payload || payload.version !== 1 || !payload.data || typeof payload.data !== 'object' || Array.isArray(payload.data)) {
+    throw new Error('這不是支援的 TopChoice JSON 備份。');
+  }
+  const imported = payload.data;
+  if (!imported.profiles || !imported.claims || typeof imported.profiles !== 'object' || typeof imported.claims !== 'object') {
+    throw new Error('備份缺少候選人或主張資料。');
+  }
+
+  const profiles = Object.fromEntries(candidateKeys.map(key => {
+    const profile = imported.profiles[key];
+    if (!profile || typeof profile.name !== 'string' || !profile.name.trim() || profile.name.length > 60 ||
+        typeof profile.approach !== 'string' || profile.approach.length > 240 || !Array.isArray(profile.tags) ||
+        profile.tags.length > 12 || profile.tags.some(tag => typeof tag !== 'string' || tag.length > 30) || typeof profile.demo !== 'boolean') {
+      throw new Error(`候選人 ${key} 的資料格式不正確。`);
+    }
+    return [key, {
+      eyebrow: candidates[key].eyebrow,
+      name: profile.name.trim(),
+      approach: profile.approach,
+      tags: profile.tags,
+      demo: profile.demo
+    }];
+  }));
+
+  const claims = Object.fromEntries(issues.map(issue => [issue.id, Object.fromEntries(candidateKeys.map(key => {
+    const claim = imported.claims[issue.id]?.[key];
+    if (!claim || typeof claim.text !== 'string' || !claim.text.trim() || claim.text.length > 500 ||
+        typeof claim.sourceTitle !== 'string' || claim.sourceTitle.length > 100 ||
+        typeof claim.sourceUrl !== 'string' || claim.sourceUrl.length > 500 ||
+        typeof claim.sourceDate !== 'string' || typeof claim.demo !== 'boolean') {
+      throw new Error(`${issue.name}的候選人 ${key} 主張格式不正確。`);
+    }
+    let sourceUrl = claim.sourceUrl.trim();
+    if (sourceUrl) {
+      let url;
+      try { url = new URL(sourceUrl); } catch (error) { throw new Error(`${issue.name}的來源網址無效。`); }
+      if (!['http:', 'https:'].includes(url.protocol)) throw new Error(`${issue.name}的來源網址只允許 HTTP 或 HTTPS。`);
+      sourceUrl = url.href;
+    }
+    if (claim.sourceDate) {
+      const date = new Date(`${claim.sourceDate}T00:00:00.000Z`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(claim.sourceDate) || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== claim.sourceDate) {
+        throw new Error(`${issue.name}的發布日期格式不正確。`);
+      }
+    }
+    return [key, {
+      text: claim.text.trim(),
+      sourceTitle: claim.sourceTitle,
+      sourceUrl,
+      sourceDate: claim.sourceDate,
+      demo: claim.demo
+    }];
+  }))]));
+
+  return { profiles, claims };
+}
+
 function sourceMarkup(claim) {
   if (claim.demo) return '<span class="source-missing">虛構示範 · 非真實主張</span>';
   const title = escapeHTML(claim.sourceTitle || '查看原始來源');
@@ -354,6 +412,32 @@ document.querySelector('#exportDataButton').addEventListener('click', () => {
   link.download = `topchoice-data-${new Date().toISOString().slice(0, 10)}.json`;
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+});
+
+document.querySelector('#importDataButton').addEventListener('click', () => {
+  document.querySelector('#importDataFile').click();
+});
+
+document.querySelector('#importDataFile').addEventListener('change', async event => {
+  const file = event.target.files?.[0];
+  const feedback = document.querySelector('#editorFeedback');
+  if (!file) return;
+  try {
+    if (!file.name.toLowerCase().endsWith('.json')) throw new Error('請選擇 .json 備份檔。');
+    if (file.size > 1024 * 1024) throw new Error('備份檔不可大於 1 MB。');
+    const nextData = normalizeImportedData(JSON.parse(await file.text()));
+    if (!window.confirm('匯入會取代目前這個瀏覽器的比較資料。確定要繼續嗎？')) return;
+    localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(nextData));
+    dataStore = nextData;
+    renderAllDataViews();
+    populateEditor();
+    feedback.textContent = '備份已匯入。自訂資料仍未經獨立查證。';
+  } catch (error) {
+    feedback.classList.add('error');
+    feedback.textContent = error instanceof Error ? error.message : '無法讀取這份備份。';
+  } finally {
+    event.target.value = '';
+  }
 });
 
 document.querySelector('#resetDataButton').addEventListener('click', () => {

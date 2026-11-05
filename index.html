@@ -114,7 +114,7 @@
   <dialog class="data-dialog" id="dataDialog">
     <div class="dialog-head"><span class="section-kicker">LOCAL DATA EDITOR</span><button class="icon-button close-data-dialog" type="button" aria-label="關閉">×</button></div>
     <h2>編輯比較資料</h2>
-    <p class="data-dialog-note">編輯內容只儲存在這個瀏覽器。請附上可公開查閱的原始來源；輸入內容不會自動視為已查證。</p>
+    <p class="data-dialog-note">編輯內容只儲存在這個瀏覽器。匯入備份會取代目前本機資料；請附上可公開查閱的原始來源，輸入內容不會自動視為已查證。</p>
     <form id="policyDataForm">
       <div class="editor-select-row">
         <label>比較對象<select id="editorCandidate"><option value="A">候選人 A</option><option value="B">候選人 B</option></select></label>
@@ -132,7 +132,8 @@
       </div>
       <label>原始來源網址<input id="editorSourceUrl" type="url" maxlength="500" placeholder="https://" inputmode="url"></label>
       <p class="editor-feedback" id="editorFeedback" aria-live="polite"></p>
-      <div class="editor-actions"><button class="solid-button" type="submit">儲存這筆資料 <span>✓</span></button><button class="small-button" id="exportDataButton" type="button">匯出 JSON 備份</button><button class="small-button reset-data-button" id="resetDataButton" type="button">重設示範資料</button></div>
+      <div class="editor-actions"><button class="solid-button" type="submit">儲存這筆資料 <span>✓</span></button><button class="small-button" id="importDataButton" type="button">匯入 JSON 備份</button><button class="small-button" id="exportDataButton" type="button">匯出 JSON 備份</button><button class="small-button reset-data-button" id="resetDataButton" type="button">重設示範資料</button></div>
+      <input id="importDataFile" type="file" accept=".json,application/json" hidden>
     </form>
   </dialog>
   <dialog class="info-dialog" id="infoDialog"><div class="dialog-head"><span class="section-kicker">DATA STANDARD</span><button class="icon-button close-dialog" aria-label="關閉">×</button></div><h2>資料標示原則</h2><p>這個原型的候選人、政見與政策選項皆為虛構示例。正式版本應採相同欄位呈現所有對象，保留原始來源、發布日期、更新紀錄及更正管道。</p><ul><li>不以未揭露的權重計算候選人總分。</li><li>事實資料與情境假設分開標示。</li><li>可查看、調整或重設每項比較條件。</li><li>引用主張時連回原始文件，不改寫成定論。</li></ul><button class="solid-button close-dialog">知道了 <span>✓</span></button></dialog>
