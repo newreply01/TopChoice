@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183b34">
+  <title>候選人政策 PK | TopChoice</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="#overview" aria-label="TopChoice 首頁">
+      <span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span><b>TOP<span>CHOICE</span></b><small>PUBLIC CHOICE LAB</small></span>
+    </a>
+    <div class="topbar-right">
+      <span class="edition"><span class="live-dot"></span>政策比較實驗室 <span class="edition-year">2026</span></span>
+      <button class="icon-button" id="aboutButton" aria-label="關於資料標示" title="關於資料標示">i</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="side-label">工作台 / WORKSPACE</div>
+      <nav class="main-nav" aria-label="主要功能">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">◫</span><span>候選人比較</span><span class="nav-index">01</span></button>
+        <button class="nav-item" data-view="policy"><span class="nav-icon">▦</span><span>政策組合</span><span class="nav-index">02</span></button>
+        <button class="nav-item" data-view="scenario"><span class="nav-icon">⌁</span><span>情境推演</span><span class="nav-index">03</span></button>
+        <button class="nav-item" data-view="debate"><span class="nav-icon">⇄</span><span>三輪辯題</span><span class="nav-index">04</span></button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="source-note">
+        <span class="source-symbol">◎</span>
+        <strong>示範資料集</strong>
+        <p>候選人與政策內容皆為虛構示例，不對應任何真實人物、政黨或選舉主張。</p>
+        <span class="source-status"><i></i> 尚未連接資料來源</span>
+      </div>
+      <div class="sidebar-foot"><span>TOPCHOICE LAB</span><span>v0.1 · PROTOTYPE</span></div>
+    </aside>
+
+    <main class="content">
+      <div class="content-head">
+        <div class="breadcrumb"><span>工作台</span><b>/</b><span id="currentCrumb">候選人比較</span></div>
+        <div class="head-status"><span class="demo-tag">DEMO DATA</span><span class="updated">介面原型 · 2026</span></div>
+      </div>
+
+      <section class="view active" id="view-overview">
+        <div class="page-intro">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span>PUBLIC POLICY / SIDE-BY-SIDE</div>
+            <h1>看政策，<em>不猜立場。</em></h1>
+            <p class="intro-copy">用同一組議題、公開條件與可調整的政策組合，拆解候選人方案的差異與取捨。</p>
+          </div>
+          <div class="intro-stamp"><span>DEMO</span><b>01<span>/</span>04</b><small>比較工作台</small></div>
+        </div>
+
+        <div class="notice-bar"><span class="notice-icon">i</span><p><strong>虛構示範資料</strong>　以下候選人與政見僅展示操作方式。正式資料需附原始來源、發布日期及更新紀錄。</p><button class="text-action" id="sourceInfo">資料原則 ↗</button></div>
+
+        <div class="comparison-heading">
+          <div><span class="section-kicker">01 / THE CANDIDATES</span><h2>候選人政策比較</h2></div>
+          <button class="outline-button" data-goto="policy"><span>組合政策方案</span><b>→</b></button>
+        </div>
+
+        <div class="candidate-grid" id="candidateCards"></div>
+
+        <div class="section-row">
+          <div><span class="section-kicker">02 / ISSUE MAP</span><h2>六大議題對照</h2></div>
+          <span class="meta-label">相同議題 · 相同欄位 · 不預設排名</span>
+        </div>
+        <div class="issue-table-wrap"><div class="issue-table" id="issueTable"></div></div>
+        <div class="bottom-callout"><div class="callout-mark">↗</div><div><strong>下一步：組出你的政策方案</strong><p>為每位候選人配置不超過 15 點的政策組合，再放入共同情境檢視。</p></div><button class="solid-button" data-goto="policy">前往政策組合 <span>→</span></button></div>
+      </section>
+
+      <section class="view" id="view-policy" hidden>
+        <div class="page-intro compact-intro">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span>POLICY DECK / 15-POINT LIMIT</div><h1>組合你的<em>政策牌組。</em></h1><p class="intro-copy">為兩組示範方案分別配置政策。預算代表遊戲資源，不等同實際政府預算。</p></div>
+          <div class="intro-stamp"><span>BUILD</span><b>02<span>/</span>04</b><small>政策組合</small></div>
+        </div>
+        <div class="budget-board" id="budgetBoard"></div>
+        <div class="policy-toolbar"><div><span class="section-kicker">CHOOSE YOUR TRADE-OFFS</span><h2>選擇政策方向</h2></div><div class="toolbar-note">每個議題可選一項，亦可留白。<span>最高 15 點 / 組</span></div></div>
+        <div class="policy-list" id="policyList"></div>
+        <div class="bottom-callout"><div class="callout-mark">⌁</div><div><strong>把方案放進共同情境</strong><p>觀察兩組政策在同一個公共挑戰下，有哪些已配置、哪些仍待回答。</p></div><button class="solid-button" data-goto="scenario">前往情境推演 <span>→</span></button></div>
+      </section>
+
+      <section class="view" id="view-scenario" hidden>
+        <div class="page-intro compact-intro">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span>SCENARIO / SAME CONDITIONS</div><h1>在相同條件下，<em>看見取捨。</em></h1><p class="intro-copy">情境只是討論框架，不是預測。檢視政策覆蓋範圍，不把不完整資訊折算成勝負分數。</p></div>
+          <div class="intro-stamp"><span>TEST</span><b>03<span>/</span>04</b><small>情境推演</small></div>
+        </div>
+        <div class="scenario-layout">
+          <aside class="scenario-picker"><span class="section-kicker">SELECT A SCENARIO</span><h2>公共議題情境</h2><div class="scenario-options" id="scenarioOptions"></div><div class="assumption-note"><b>推演假設</b><p>僅檢查你選擇的政策是否觸及情境議題，不代表政策有效性或實際結果。</p></div></aside>
+          <div class="scenario-result" id="scenarioResult"></div>
+        </div>
+        <div class="bottom-callout"><div class="callout-mark">⇄</div><div><strong>把分歧帶進三輪辯題</strong><p>從住房、交通或財政中選擇辯題，逐輪整理主張、條件與待查證資訊。</p></div><button class="solid-button" data-goto="debate">前往三輪辯題 <span>→</span></button></div>
+      </section>
+
+      <section class="view" id="view-debate" hidden>
+        <div class="page-intro compact-intro">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span>OPEN DEBATE / THREE ROUNDS</div><h1>把問題問完整，<em>再比較答案。</em></h1><p class="intro-copy">三輪結構不替候選人判勝負，而是幫你追問主張、執行條件與證據來源。</p></div>
+          <div class="intro-stamp"><span>ROUND</span><b>04<span>/</span>04</b><small>議題辯論</small></div>
+        </div>
+        <div class="debate-topline"><div><span class="section-kicker">THE ISSUE ARENA</span><h2>三輪政策辯題</h2></div><div class="debate-progress" id="debateProgress"></div></div>
+        <div class="debate-layout"><div class="round-rail" id="roundRail"></div><article class="debate-card" id="debateCard"></article></div>
+        <div class="debate-footnote"><span>ⓘ</span><p>正式版應為每項候選人主張附上原始連結、來源類型、發布日期及人工查核狀態。本原型不含真實政見或候選人評分。</p></div>
+      </section>
+
+      <footer class="page-footer"><span>TOPCHOICE · A CIVIC COMPARISON PROTOTYPE</span><span>內容以來源為本，差異由你檢視。</span></footer>
+    </main>
+  </div>
+  <dialog class="info-dialog" id="infoDialog"><div class="dialog-head"><span class="section-kicker">DATA STANDARD</span><button class="icon-button close-dialog" aria-label="關閉">×</button></div><h2>資料標示原則</h2><p>這個原型的候選人、政見與政策選項皆為虛構示例。正式版本應採相同欄位呈現所有對象，保留原始來源、發布日期、更新紀錄及更正管道。</p><ul><li>不以未揭露的權重計算候選人總分。</li><li>事實資料與情境假設分開標示。</li><li>可查看、調整或重設每項比較條件。</li><li>引用主張時連回原始文件，不改寫成定論。</li></ul><button class="solid-button close-dialog">知道了 <span>✓</span></button></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
