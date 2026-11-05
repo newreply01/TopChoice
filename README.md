@@ -7,6 +7,13 @@ Open `index.html` directly, or publish this repository with GitHub Pages by sele
 
 See [PRODUCT_SPEC.md](PRODUCT_SPEC.md) for the full feature design, data model, source standards, privacy rules, architecture, and release criteria.
 
+## How to Play
+
+1. Start with the fictional A/B examples, or edit candidate names, issue claims, and source links.
+2. Open **政策組合** and choose policy cards for each side, staying within 15 game points per side. These points are attention tokens, not government budget.
+3. Open **情境推演** and select a shared public scenario to compare covered and unanswered issues.
+4. Open **三輪辯題** to review claims, implementation questions, and evidence. The prototype identifies differences and open questions; it does not declare a winner.
+
 ## Candidate Data
 
 - Select **編輯比較資料** on the comparison page to edit a candidate profile and one issue claim at a time.

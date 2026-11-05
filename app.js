@@ -305,6 +305,8 @@ function renderAllDataViews() {
 const labels = { overview: '候選人比較', policy: '政策組合', scenario: '情境推演', debate: '三輪辯題' };
 function navigate(view) {
   if (!labels[view]) return;
+  const howToDialog = document.querySelector('#howToPlayDialog');
+  if (howToDialog.open) howToDialog.close();
   state.view = view;
   document.querySelectorAll('.view').forEach(section => {
     const active = section.id === `view-${view}`;
@@ -352,6 +354,18 @@ document.addEventListener('click', event => {
 
 document.querySelector('#infoDialog').addEventListener('click', event => {
   if (event.target === event.currentTarget) event.currentTarget.close();
+});
+
+const howToDialog = document.querySelector('#howToPlayDialog');
+document.querySelector('#howToPlayButton').addEventListener('click', () => howToDialog.showModal());
+document.querySelectorAll('.close-howto-dialog').forEach(button => button.addEventListener('click', () => howToDialog.close()));
+document.querySelector('#howToEditData').addEventListener('click', () => {
+  howToDialog.close();
+  populateEditor();
+  document.querySelector('#dataDialog').showModal();
+});
+howToDialog.addEventListener('click', event => {
+  if (event.target === howToDialog) howToDialog.close();
 });
 
 document.querySelector('#editDataButton').addEventListener('click', () => {

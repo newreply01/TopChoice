@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="data-editor.css">
+  <link rel="stylesheet" href="howto.css">
 </head>
 <body>
   <header class="topbar">
@@ -62,7 +63,7 @@
 
         <div class="comparison-heading">
           <div><span class="section-kicker">01 / THE CANDIDATES</span><h2>候選人政策比較</h2></div>
-          <div class="heading-actions"><button class="outline-button" id="editDataButton"><span>編輯比較資料</span><b>＋</b></button><button class="outline-button" data-goto="policy"><span>組合政策方案</span><b>→</b></button></div>
+          <div class="heading-actions"><button class="outline-button howto-trigger" id="howToPlayButton"><span>怎麼進行</span><b>?</b></button><button class="outline-button" id="editDataButton"><span>編輯比較資料</span><b>＋</b></button><button class="outline-button" data-goto="policy"><span>組合政策方案</span><b>→</b></button></div>
         </div>
 
         <div class="candidate-grid" id="candidateCards"></div>
@@ -111,6 +112,18 @@
       <footer class="page-footer"><span>TOPCHOICE · A CIVIC COMPARISON PROTOTYPE</span><span>內容以來源為本，差異由你檢視。</span></footer>
     </main>
   </div>
+  <dialog class="howto-dialog" id="howToPlayDialog">
+    <div class="dialog-head"><span class="section-kicker">HOW TO PLAY / 4 STEPS</span><button class="icon-button close-howto-dialog" type="button" aria-label="關閉遊戲說明">×</button></div>
+    <h2>一局怎麼進行？</h2>
+    <p class="howto-intro">這是一個比較政策、找出待查問題的遊戲原型，不是猜誰會贏。完成四步後，你會得到一份清楚的政策差異與追問方向。</p>
+    <ol class="howto-steps">
+      <li><span class="howto-number">01</span><div><h3>準備比較資料</h3><p>示範候選人已預載。想改成自己的資料，就填寫候選人名稱、各議題主張和原始來源；資料只存在目前瀏覽器。</p><button class="small-button" id="howToEditData" type="button">編輯候選人資料 <span>→</span></button></div></li>
+      <li><span class="howto-number">02</span><div><h3>組 15 點議題牌組</h3><p>進入「政策組合」，分別替 A、B 選擇想納入比較的政策卡。每組最多 15 點；點數代表遊戲中的注意力配置，不是政府預算。已預選的卡片可替換或取消。</p><button class="small-button" data-goto="policy" type="button">前往政策組合 <span>→</span></button></div></li>
+      <li><span class="howto-number">03</span><div><h3>套用共同情境</h3><p>選擇住房、交通或財政情境，查看兩組方案有哪些對應政策，哪些問題仍待回答。兩邊使用相同情境，不計勝負分數。</p><button class="small-button" data-goto="scenario" type="button">前往情境推演 <span>→</span></button></div></li>
+      <li><span class="howto-number">04</span><div><h3>完成三輪辯題</h3><p>依序檢視「提出主張、檢視執行、核對證據」，比較來源、執行條件與成本問題。完成標準是找出差異與待追問項目，不會有勝者或敗者。</p><button class="small-button" data-goto="debate" type="button">前往三輪辯題 <span>→</span></button></div></li>
+    </ol>
+    <div class="howto-footer"><span>小提示：未附可查證來源的內容會標示「待補」或「未查證」。</span><button class="solid-button close-howto-dialog" type="button">開始比較 <span>✓</span></button></div>
+  </dialog>
   <dialog class="data-dialog" id="dataDialog">
     <div class="dialog-head"><span class="section-kicker">LOCAL DATA EDITOR</span><button class="icon-button close-data-dialog" type="button" aria-label="關閉">×</button></div>
     <h2>編輯比較資料</h2>
